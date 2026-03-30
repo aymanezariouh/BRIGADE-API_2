@@ -478,7 +478,7 @@
                 "tags": [
                     "Plates"
                 ],
-                "summary": "List plates",
+                "summary": "List plates with the latest recommendation summary",
                 "operationId": "e291a16ca9d9fc4f5a5245fe3c5fd5a9",
                 "responses": {
                     "200": {
@@ -562,7 +562,7 @@
                 "tags": [
                     "Plates"
                 ],
-                "summary": "Show a plate",
+                "summary": "Show a plate with the latest recommendation details",
                 "operationId": "27b571075ec90112dd47ede269e5a019",
                 "parameters": [
                     {
@@ -748,6 +748,83 @@
                 ]
             }
         },
+        "/api/recommendations/analyze/{id}": {
+            "post": {
+                "tags": [
+                    "Recommendations"
+                ],
+                "summary": "Launch recommendation analysis for a plate",
+                "operationId": "76dbae4e7a4c35b5e99f5d0b7fb81dc3",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Recommendation analysis queued"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/recommendations": {
+            "get": {
+                "tags": [
+                    "Recommendations"
+                ],
+                "summary": "List my recommendation history",
+                "operationId": "9c3d6f23e24bc137dd3d6b584c827f49",
+                "responses": {
+                    "200": {
+                        "description": "Recommendations retrieved"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/recommendations/{id}": {
+            "get": {
+                "tags": [
+                    "Recommendations"
+                ],
+                "summary": "Get the latest recommendation for a plate",
+                "operationId": "2e89791062f3a76e664d281fbfd5ea07",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Recommendation retrieved"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/me": {
             "get": {
                 "tags": [
@@ -800,6 +877,10 @@
         {
             "name": "Profile",
             "description": "Profile"
+        },
+        {
+            "name": "Recommendations",
+            "description": "Recommendations"
         }
     ]
 }

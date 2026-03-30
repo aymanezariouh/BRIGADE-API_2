@@ -6,6 +6,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\IngredientController;
 use App\Http\Controllers\PlatController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\RecommendationController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -30,6 +31,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('plats', [PlatController::class, 'index']);
     Route::get('plats/{plate}', [PlatController::class, 'show']);
 
+    Route::post('recommendations/analyze/{plate}', [RecommendationController::class, 'analyze']);
+    Route::get('recommendations', [RecommendationController::class, 'index']);
+    Route::get('recommendations/{plate}', [RecommendationController::class, 'show']);
+
     Route::middleware('admin')->group(function () {
         Route::post('categories', [CategoryController::class, 'store']);
         Route::put('categories/{category}', [CategoryController::class, 'update']);
@@ -50,7 +55,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('admin/stats', [AdminStatsController::class, 'show']);
     });
 });
-
 
 
 

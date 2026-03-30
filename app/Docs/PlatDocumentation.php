@@ -10,7 +10,7 @@ interface PlatDocumentation
 {
     #[OA\Get(
         path: '/api/plates',
-        summary: 'List plates',
+        summary: 'List plates with the latest recommendation summary',
         tags: ['Plates'],
         security: [['bearerAuth' => []]]
     )]
@@ -47,7 +47,7 @@ interface PlatDocumentation
 
     #[OA\Get(
         path: '/api/plates/{id}',
-        summary: 'Show a plate',
+        summary: 'Show a plate with the latest recommendation details',
         tags: ['Plates'],
         security: [['bearerAuth' => []]]
     )]

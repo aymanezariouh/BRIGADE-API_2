@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Docs\PlatDocumentation;
 use App\Models\Plate;
+use App\Models\Recommendation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
@@ -14,18 +15,29 @@ class PlatController extends Controller implements PlatDocumentation
 
     public function index(Request $request)
     {
-        $query = Plate::query()
+        $plates = Plate::query()
             ->with(['category', 'ingredients'])
             ->orderBy('name');
 
         if (! $request->user()->isAdmin()) {
-            $query
+            $plates
                 ->where('is_available', true)
                 ->whereHas('category', fn ($categoryQuery) => $categoryQuery->where('is_active', true));
         }
 
+        $plates = $plates->get();
+        $recommendations = $this->latestRecommendationsForUser(
+            $request->user()->id,
+            $plates->pluck('id')->all()
+        );
+
         return response()->json([
-            'plates' => $query->get(),
+            'plates' => $plates->map(
+                fn (Plate $plate) => $this->serializePlate(
+                    $plate,
+                    $recommendations[$plate->id] ?? null
+                )
+            ),
         ]);
     }
 
@@ -54,9 +66,18 @@ class PlatController extends Controller implements PlatDocumentation
     public function show(Request $request, Plate $plate)
     {
         $this->abortIfHiddenForCustomer($request, $plate);
+        $recommendation = Recommendation::query()
+            ->where('user_id', $request->user()->id)
+            ->where('plate_id', $plate->id)
+            ->latest()
+            ->first();
 
         return response()->json([
-            'plate' => $plate->load(['category', 'ingredients']),
+            'plate' => $this->serializePlate(
+                $plate->load(['category', 'ingredients']),
+                $recommendation,
+                true
+            ),
         ]);
     }
 
@@ -136,5 +157,41 @@ class PlatController extends Controller implements PlatDocumentation
             404,
             'Plate not found.'
         );
+    }
+
+    private function latestRecommendationsForUser(int $userId, array $plateIds): array
+    {
+        if ($plateIds === []) {
+            return [];
+        }
+
+        return Recommendation::query()
+            ->where('user_id', $userId)
+            ->whereIn('plate_id', $plateIds)
+            ->latest()
+            ->get()
+            ->unique('plate_id')
+            ->keyBy('plate_id')
+            ->all();
+    }
+
+    private function serializePlate(
+        Plate $plate,
+        ?Recommendation $recommendation = null,
+        bool $includeRecommendationDetails = false
+    ): array {
+        $payload = $plate->toArray();
+        $payload['recommendation'] = $recommendation
+            ? [
+                'id' => $recommendation->id,
+                'score' => (float) $recommendation->score,
+                'label' => $recommendation->label,
+                'warning_message' => $recommendation->warning_message,
+                'status' => $recommendation->status,
+                'details' => $includeRecommendationDetails ? $recommendation->details : null,
+            ]
+            : null;
+
+        return $payload;
     }
 }

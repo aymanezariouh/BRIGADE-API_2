@@ -9,12 +9,20 @@ class Recommendation extends Model
 {
     use HasFactory;
 
+    public const STATUS_PROCESSING = 'processing';
+    public const STATUS_READY = 'ready';
+
+    public const LABEL_HIGHLY_RECOMMENDED = 'Highly Recommended';
+    public const LABEL_RECOMMENDED_WITH_NOTES = 'Recommended with notes';
+    public const LABEL_NOT_RECOMMENDED = 'Not Recommended';
+
     protected $fillable = [
         'user_id',
         'plate_id',
         'score',
         'label',
         'warning_message',
+        'details',
         'status',
     ];
 
@@ -22,6 +30,7 @@ class Recommendation extends Model
     {
         return [
             'score' => 'decimal:2',
+            'details' => 'array',
         ];
     }
 
